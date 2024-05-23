@@ -1,27 +1,34 @@
+const fs = require("fs")
+
 const db = require("../models");
-const Tutorial = db.tutorials;
+const Employee = db.employee;
+
+exports.uploadFiles = (req,res) =>{
+ // const file = req.file;
+
+  //console.log(file);
+  res.status(200).send({ message :"File uploaded "});
+}
 
 // Create and Save a new Tutorial
 exports.create = (req, res) => {
   // Validate request
-  if (!req.body.title) {
+  if (!req.body.name) {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
 
   // Create a Tutorial
-  const tutorial = new Tutorial({
-    title: req.body.title,
-    description: req.body.description,
-    published: req.body.published ? req.body.published : false,
-    phoneNumber:req.body.phoneNumber,
-    aadharId:req.body.aadharId,
-    books:req.body.books
+  const employee = new Employee({
+    name :req.body.name,
+    department: req.body.department,
+    salary: req.body.salary,
+    active: req.body.active ? req.body.active : false
   });
 
   // Save Tutorial in the database
-  tutorial
-    .save(tutorial)
+  employee
+    .save(employee)
     .then(data => {
       res.send(data);
     })
@@ -31,15 +38,14 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the Tutorial."
       });
     });
-    
 };
 
 // Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
-  const title = req.query.title;
+  const title = req.query.name;
   var condition = title ? { title: { $regex: new RegExp(title), $options: "i" } } : {};
 
-  Tutorial.find(condition)
+  Employee.find(condition)
     .then(data => {
       res.send(data);
     })
@@ -53,7 +59,7 @@ exports.findAll = (req, res) => {
 
 // Find a single Tutorial with an id
 exports.findOne = (req, res) => {
-  const id = req.params.id;
+  const id = req.params.name;
 
   Tutorial.findById(id)
     .then(data => {
@@ -68,23 +74,6 @@ exports.findOne = (req, res) => {
     });
 };
 
-exports.findByTitle =(req, res) => {
-  console.log("Find By Title is called");
-  const title = req.params.title;
-  console.log(title)
-
-  Tutorial.findOne({title: req.params.title})
-    .then( data => {
-      //console.log(data)
-        if(!data)
-          res.status(404).send({ message : "Not found Tutorial with title " + title});
-        else res.send(data);
-  })
-  .catch(err => {
-    res.status(500).send({message:"Error retrieving Tutorial with title=" +title});
-  }); 
-};
-
 // Update a Tutorial by the id in the request
 exports.update = (req, res) => {
   if (!req.body) {
@@ -95,7 +84,7 @@ exports.update = (req, res) => {
 
   const id = req.params.id;
 
-  Tutorial.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+  Employee.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -114,7 +103,7 @@ exports.update = (req, res) => {
 exports.delete = (req, res) => {
   const id = req.params.id;
 
-  Tutorial.findByIdAndRemove(id, { useFindAndModify: false })
+  Employee.findByIdAndRemove(id, { useFindAndModify: false })
     .then(data => {
       if (!data) {
         res.status(404).send({
@@ -135,7 +124,7 @@ exports.delete = (req, res) => {
 
 // Delete all Tutorials from the database.
 exports.deleteAll = (req, res) => {
-  Tutorial.deleteMany({})
+  Employee.deleteMany({})
     .then(data => {
       res.send({
         message: `${data.deletedCount} Tutorials were deleted successfully!`
@@ -151,7 +140,7 @@ exports.deleteAll = (req, res) => {
 
 // Find all published Tutorials
 exports.findAllPublished = (req, res) => {
-  Tutorial.find({ published: true })
+  Employee.find({ published: true })
     .then(data => {
       res.send(data);
     })
